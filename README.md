@@ -11,12 +11,12 @@ The project aims to extend the existing camera experience rather than replace So
 - Camera: Sony α6000 / ILCE 6000
 - Target firmware: 3.21
 - Interface: Minimal, responsive and photography focused
-- Architecture: Independent application layer with a separate camera integration layer
-- Primary objective: Improve the shooting experience while preserving the camera's existing imaging pipeline
+- Architecture: Independent application layer with separate camera integration
+- Primary objective: Improve the shooting experience while preserving the stock imaging pipeline
 
-## Current development status
+## Current status
 
-<ins>Experimental application shell</ins>
+**Early application prototype**
 
 The initial Android application structure and interface have been committed.
 
@@ -27,65 +27,75 @@ Current interface sections:
 - Library
 - System
 
-The application currently uses a disconnected camera adapter. The interface does not yet communicate with the camera.
+The application currently uses a disconnected camera adapter. It does not yet communicate with the camera.
 
-### Implemented in source
+### Present in source
 
 - Initial Android application structure
 - Native Android interface
 - Four section navigation
 - Initial shooting workspace
-- Placeholder profile screens
-- Library placeholder
+- Profile and library placeholders
 - System and capability status screens
 - Camera abstraction interface
 - Explicit untested camera state
 
-### Not yet implemented
+### Not yet implemented or verified
 
+- Successful application build
 - Sony camera connection
 - Live camera preview
 - Autofocus integration
 - Image capture
 - Camera setting access
 - Physical button and dial integration
-- Working colour profile configuration
+- Functional colour profile configuration
 - Image library access
 - On device image recognition
 - Custom image processing
+- Installation and operation on the camera
 
 No working APK or camera installation has yet been verified.
 
 ## Technical approach
 
-ALPHA OS is being developed as an application for the Sony camera environment.
+ALPHA OS is being developed as an application layer for the Sony camera environment.
 
-The initial implementation uses the legacy Android application structure found in the PMCADemo reference project.
+The initial implementation uses a legacy Android application structure informed by existing Sony camera development projects.
 
-Sony specific functionality will be isolated behind a camera adapter. This allows the interface to remain usable during development without falsely presenting untested camera functions as operational.
+Sony specific functionality will be isolated behind a camera adapter. Unsupported features must remain clearly identified rather than being presented as operational.
 
-The project will prioritise:
+Development priorities:
 
-1. A reproducible build environment
-2. Reliable interface navigation
-3. Camera detection and device information
-4. Physical control integration
-5. Live preview and capture
-6. Configurable shooting profiles
-7. Image analysis and recognition research
+1. Establish a reproducible build environment.
+2. Improve interface navigation and responsiveness.
+3. Investigate camera detection and device information.
+4. Integrate physical controls.
+5. Investigate live preview and image capture.
+6. Develop configurable shooting profiles.
+7. Research image analysis and recognition within the camera's hardware limitations.
+
+## Project principles
+
+- Preserve Sony's existing imaging pipeline.
+- Prioritise photography and shooting usability.
+- Avoid unnecessary interface complexity.
+- Keep camera integration modular.
+- Clearly distinguish implemented, experimental and unsupported features.
+- Validate functionality on the actual camera before claiming compatibility.
+- Credit upstream projects and respect their licences.
 
 ## Repository structure
 
 ```text
 alphaos_a6000/
 ├── app/
-│   └── src/
-│       └── main/
-│           ├── java/com/finatk/alphaos/
-│           │   ├── MainActivity.java
-│           │   ├── CameraGateway.java
-│           │   └── UnconnectedCameraGateway.java
-│           └── AndroidManifest.xml
+│   └── src/main/
+│       ├── java/com/finatk/alphaos/
+│       │   ├── MainActivity.java
+│       │   ├── CameraGateway.java
+│       │   └── UnconnectedCameraGateway.java
+│       └── AndroidManifest.xml
 ├── docs/
 │   ├── PROJECT_STATUS.md
 │   ├── PLATFORM_RESEARCH.md

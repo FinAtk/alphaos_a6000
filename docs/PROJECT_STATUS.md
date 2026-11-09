@@ -1,75 +1,197 @@
-
 # ALPHA OS project status
 
-## Project direction
+## Project overview
 
-ALPHA OS is an experimental, photography first interface and software layer for the Sony ILCE 6000 (α6000), targeting firmware 3.21.
+ALPHA OS is an experimental, photography focused application interface for the Sony α6000 (ILCE 6000).
 
-The intended experience is hybrid: retain the camera's existing imaging system while exploring a more coherent, responsive interface and additional photography workflows. The visual direction is minimal and designed around fast access to shooting functions.
+Target firmware: 3.21, as reported by the project owner.
 
-## Current repository status
+The project explores a more coherent shooting interface, configurable photography workflows and improved access to camera functions.
 
-This repository is at the beginning of implementation. The existence of this document does not indicate that a working camera application has been built.
+The intended approach is hybrid: preserve Sony's existing imaging system while developing an independent application layer.
 
-### Confirmed
+## Current development status
 
-- Target camera: Sony ILCE 6000 (α6000).
-- Target firmware reported by the project owner: version 3.21.
-- Project direction: photography first, hybrid, minimal interface.
-- Development must distinguish documented research, source code, build checks and physical camera validation.
+The initial application source has been committed to the repository.
 
-### Not yet implemented or validated
+The current application contains four interface sections:
 
-- A buildable camera application.
-- Live camera preview or capture integration.
-- Reading or writing camera settings.
-- Physical button and dial integration.
-- Custom image processing, sensor pipeline changes or RAW processing.
-- On device image recognition.
-- Installation or execution on an α6000.
+- Shoot
+- Profiles
+- Library
+- System
 
-No claim of hardware compatibility should be made until a build has been installed and tested on the target camera.
+It uses native Android views and a camera abstraction interface. The current camera adapter is deliberately disconnected.
 
-## Engineering principles
+This is an early application prototype, not a functioning replacement camera operating system.
 
-1. Preserve the stock camera imaging pipeline unless a documented interface proves a safe extension point.
-2. Prefer an application layer over replacing camera firmware.
-3. Keep camera access behind a small adapter so unsupported APIs do not spread through the interface.
-4. Treat image recognition as a later, resource constrained experiment.
-5. Make every camera capability report its status as supported, experimental, unavailable or not yet tested.
-6. Do not distribute Sony firmware, proprietary Sony applications, NAND dumps or private camera data.
-7. Attribute upstream projects and comply with their exact licences before copying or adapting code.
+## Confirmed implementation
 
-## Immediate development sequence
+| Component | Status |
+|---|---|
+| Android project structure | Committed |
+| Main application activity | Committed |
+| Initial interface navigation | Committed |
+| Shoot interface placeholder | Committed |
+| Profiles interface placeholder | Committed |
+| Library interface placeholder | Committed |
+| System interface placeholder | Committed |
+| Camera abstraction | Committed |
+| Disconnected camera adapter | Committed |
 
-1. Record platform evidence and known unknowns.
-2. Verify the target runtime and toolchain.
-3. Establish a minimal application and build configuration.
-4. Build the interface independently of camera hardware.
-5. Add a camera capability adapter with explicit unsupported states.
-6. Validate compilation and static checks.
-7. Proceed to physical camera testing when a safely installable build exists.
+These entries describe source code presence only. They do not imply successful compilation or operation on the camera.
 
-## Upstream research
+## Outstanding implementation
 
-These projects are research references, not proof of compatibility:
+| Component | Status |
+|---|---|
+| Reproducible build environment | Not established |
+| Successful APK compilation | Not verified |
+| Sony camera detection | Not implemented |
+| Live preview | Not implemented |
+| Image capture | Not implemented |
+| Autofocus integration | Not implemented |
+| Camera settings access | Not implemented |
+| Physical buttons and dials | Not implemented |
+| Functional shooting profiles | Not implemented |
+| Image library integration | Not implemented |
+| On device image recognition | Research only |
+| Custom image processing | Not implemented |
+| Camera installation | Not attempted |
+| Physical camera validation | Not performed |
 
-- OpenMemories Framework: https://github.com/ma1co/OpenMemories-Framework
-- OpenMemories Platform: https://github.com/ma1co/OpenMemories-Platform
-- Sony PMCA RE: https://github.com/ma1co/Sony-PMCA-RE
-- Sony α6000 firmware research: https://github.com/CliffVale/sony-a6000-firmware-research
-- Recipe Lab: https://github.com/voxivoid/recipe-lab-sony-pmca
+## Platform research
 
-Before reusing source code, inspect the exact revision and licence. Recipe Lab has had different licensing across versions.
+Existing community development provides a potential route for third party applications on the α6000.
+
+The OpenMemories Framework lists the A6000 as a supported camera target. Its wrappers expose Sony specific functionality, although not every camera API is implemented or available.
+
+PMCADemo provides a useful reference for application structure, camera preview and physical input handling.
+
+PMCA RE and PMCA RE Reloaded provide research and installation routes for Sony camera applications.
+
+These references establish a plausible development direction, not proof that the current ALPHA OS application works.
+
+Important technical distinction:
+
+Sony's camera application API version and Android API level are separate versioning systems. The Sony platform API version must not be confused with Android API level 10.
+
+## Engineering priorities
+
+### Stage 1: Application foundation
+
+- Establish a reproducible legacy Android build environment.
+- Confirm compatible Gradle, Android Gradle Plugin, Java and SDK versions.
+- Resolve project configuration problems.
+- Produce a debug APK.
+- Test application launch independently of camera integration.
+
+### Stage 2: Camera integration
+
+- Investigate Sony camera application APIs.
+- Implement camera detection and device information.
+- Map physical buttons and control dials.
+- Investigate a reliable live preview implementation.
+- Implement image capture only after the preview and camera lifecycle are understood.
+
+### Stage 3: Photography workflow
+
+- Develop functional shooting profiles.
+- Investigate exposure and focus controls.
+- Improve access to frequently used settings.
+- Develop a practical image review workflow.
+- Ensure the interface remains responsive and usable on the camera display.
+
+### Stage 4: Image analysis
+
+- Investigate on device image recognition.
+- Assess available processing resources and memory.
+- Prioritise lightweight scene classification and subject detection.
+- Explore focus assistance and photographic suggestions.
+- Avoid interfering with Sony's existing image processing pipeline.
+
+### Stage 5: Hardware validation
+
+- Install a verified build on the α6000.
+- Test physical controls and camera lifecycle.
+- Validate preview and capture.
+- Measure responsiveness and memory usage.
+- Record failures and compatibility limitations.
+
+## Colour science and image processing
+
+The initial project will preserve Sony's stock imaging pipeline.
+
+There is currently no verified method implemented for modifying sensor processing, RAW development, JPEG colour rendering or proprietary image processing stages.
+
+Potential improvements should initially focus on:
+
+- Better exposure and focus guidance.
+- Scene and subject recognition.
+- Configurable shooting workflows.
+- Consistent photographic presets where supported by camera APIs.
+- Improved image review and organisation.
+
+Any proposed change to image rendering must be tested against actual camera output. Interface simulations must not be described as changes to the camera's image processing.
+
+## Development principles
+
+1. Photography takes priority over unnecessary interface features.
+2. Preserve the existing Sony imaging pipeline.
+3. Keep camera integration separate from the interface.
+4. Make unsupported features visibly unavailable.
+5. Avoid unnecessary background processing.
+6. Prioritise responsive navigation and clear controls.
+7. Validate every hardware dependent feature on the actual camera.
+8. Distinguish researched, implemented, compiled, installed and tested functionality.
+9. Credit upstream projects and respect their individual licences.
+10. Never distribute proprietary Sony firmware or private camera data.
+
+## Upstream projects and acknowledgements
+
+The following projects provide technical research, reference implementations or installation tools.
+
+- OpenMemories Framework  
+  https://github.com/ma1co/OpenMemories-Framework
+
+- OpenMemories Platform  
+  https://github.com/ma1co/OpenMemories-Platform
+
+- PMCADemo  
+  https://github.com/ma1co/PMCADemo
+
+- Sony PMCA RE  
+  https://github.com/ma1co/Sony-PMCA-RE
+
+- PMCA RE Reloaded  
+  https://masterflai.github.io/pmca-re-reloaded/
+
+- Sony α6000 firmware research  
+  https://github.com/CliffVale/sony-a6000-firmware-research
+
+- Recipe Lab  
+  https://github.com/voxivoid/recipe-lab-sony-pmca
+
+These projects are independent upstream work. Their inclusion does not imply endorsement or compatibility.
+
+Before adapting source code, inspect the exact revision and retain the appropriate licence notices and attribution. Different versions of a project may have different licences.
+
+ALPHA OS is an independent project and is not affiliated with Sony.
 
 ## Validation log
 
-| Area | Status |
+| Validation | Result |
 |---|---|
-| Project direction | Defined |
-| Target firmware | Reported by owner, not independently verified |
-| Platform compatibility | Research required |
-| Application source | Not yet implemented |
-| Build | Not run |
-| Camera installation | Not attempted |
+| Project source committed | Confirmed |
+| README updated | Confirmed |
+| Platform research | Documented |
+| Build environment | Not verified |
+| APK compilation | Not performed |
+| APK installation | Not performed |
+| Camera connection | Not tested |
+| Live preview | Not tested |
+| Image capture | Not tested |
+| Physical controls | Not tested |
 | Hardware validation | Not performed |
+
+Last status update: 10 November 2026.

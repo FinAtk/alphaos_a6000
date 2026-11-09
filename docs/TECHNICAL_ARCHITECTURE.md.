@@ -1,0 +1,453 @@
+# ALPHA OS technical architecture
+
+## 1. Purpose
+
+This document defines the proposed technical structure for ALPHA OS, an experimental photography focused application for the Sony α6000 (ILCE 6000).
+
+The architecture is intended to support a responsive camera interface while preserving the existing Sony imaging pipeline.
+
+The application must remain modular so that camera functions can be developed and tested independently of the interface.
+
+This document describes the intended architecture. It does not imply that the proposed integrations have been implemented.
+
+## 2. Design requirements
+
+The architecture must prioritise:
+
+- Photography and shooting workflow.
+- Fast access to frequently used controls.
+- Responsive navigation.
+- Minimal visual complexity.
+- Low memory and processing overhead.
+- Reliable behaviour during camera lifecycle changes.
+- Clear separation between interface and hardware functionality.
+- Graceful handling of unsupported camera capabilities.
+
+The application should avoid unnecessary background services, network dependencies and heavyweight frameworks.
+
+## 3. System architecture
+
+The proposed system consists of five layers.
+
+### Layer 1: Presentation
+
+Responsible for all visible application elements.
+
+Components:
+
+- Main navigation.
+- Shooting workspace.
+- Shooting profile interface.
+- Image library interface.
+- System and device information.
+- Camera status indicators.
+- Focus and exposure guidance.
+
+Requirements:
+
+- Native Android views initially.
+- Landscape orientation.
+- Consistent navigation across sections.
+- Clear distinction between available and unavailable controls.
+- Minimal screen transitions.
+- Responsive interaction with physical camera buttons.
+
+The presentation layer must not directly access Sony specific APIs.
+
+### Layer 2: Application logic
+
+Coordinates user actions and camera operations.
+
+Responsibilities:
+
+- Navigation state.
+- Shooting profile management.
+- Camera operation requests.
+- Capability checks.
+- Configuration management.
+- Error handling.
+- Application lifecycle.
+
+This layer should remain independent of the underlying Sony camera implementation.
+
+### Layer 3: Camera gateway
+
+Provides a consistent interface between application logic and camera hardware.
+
+The existing `CameraGateway.java` defines the initial abstraction.
+
+The disconnected adapter should eventually be replaced by a Sony specific implementation.
+
+Proposed responsibilities:
+
+- Camera connection state.
+- Device information.
+- Live preview lifecycle.
+- Capture requests.
+- Exposure and focus controls.
+- Physical input events.
+- Camera capability reporting.
+
+Every operation must be checked against the capabilities actually available on the target camera.
+
+### Layer 4: Sony platform integration
+
+Responsible for communication with Sony's camera application environment.
+
+Research references:
+
+- OpenMemories Framework.
+- OpenMemories Platform.
+- PMCADemo.
+- Sony PMCA RE.
+- PMCA RE Reloaded.
+
+Potential integration points:
+
+- Sony camera APIs.
+- Android camera interfaces exposed by the device.
+- Sony specific physical input events.
+- Camera application lifecycle.
+- Device information and supported settings.
+
+The precise availability of each API must be verified on the α6000 running firmware 3.21.
+
+No unsupported API should be assumed to work simply because it exists in an upstream project.
+
+### Layer 5: Configuration and data
+
+Responsible for persistent application preferences and user defined shooting profiles.
+
+Potential data:
+
+- Profile names.
+- Preferred exposure settings.
+- Focus preferences.
+- Interface preferences.
+- User configuration.
+- Application state.
+
+Configuration should be stored independently of the camera's proprietary settings system.
+
+The application must not overwrite camera settings without a confirmed supported method and appropriate user interaction.
+
+## 4. Capability model
+
+Camera features must use an explicit capability state.
+
+| State | Meaning |
+|---|---|
+| SUPPORTED | Implemented and verified on the target camera |
+| EXPERIMENTAL | Implemented but not fully validated |
+| UNAVAILABLE | Confirmed unavailable |
+| NOT_TESTED | Not yet verified |
+
+These states must be reflected in the interface and diagnostic information.
+
+A feature must never be marked supported solely because a method exists in an API wrapper.
+
+## 5. Interface architecture
+
+The main navigation contains four sections.
+
+### Shoot
+
+The primary application workspace.
+
+Intended elements:
+
+- Camera preview.
+- Shooting status.
+- Exposure information.
+- Focus information.
+- Capture control.
+- Quick settings.
+- Current shooting profile.
+
+The preview should occupy the largest practical area of the display.
+
+Frequently used shooting functions should require minimal navigation.
+
+### Profiles
+
+Provides configurable shooting configurations.
+
+Potential profile categories:
+
+- Street photography.
+- Portrait.
+- Landscape.
+- Low light.
+- General purpose.
+
+Profiles should initially be treated as application configuration objects.
+
+They must not imply that camera settings have changed unless those settings have actually been applied and verified.
+
+### Library
+
+Provides access to captured photographs where supported.
+
+Potential functions:
+
+- Image thumbnails.
+- Image review.
+- Basic metadata.
+- Image navigation.
+- Delete and playback actions where supported.
+
+The implementation must respect the camera's existing file management and image storage mechanisms.
+
+### System
+
+Provides application and camera information.
+
+Potential information:
+
+- Camera model.
+- Firmware version.
+- Application version.
+- Connection status.
+- Supported capabilities.
+- Diagnostic information.
+
+This section should make experimental and unavailable functionality clear.
+
+## 6. Shooting workflow
+
+The shooting workflow should be designed around the following sequence:
+
+1. Launch application.
+2. Initialise the camera integration layer.
+3. Detect available camera capabilities.
+4. Initialise the shooting workspace.
+5. Start preview if supported.
+6. Receive physical input events.
+7. Update the interface when camera state changes.
+8. Execute capture requests when supported.
+9. Release camera resources when the application pauses or exits.
+
+Camera lifecycle handling is critical.
+
+Preview resources must be released correctly when the application is interrupted, paused or terminated.
+
+The application must recover cleanly from failed initialisation rather than remaining in an unresponsive state.
+
+## 7. Physical controls
+
+The α6000 provides physical controls that should remain central to the interface experience.
+
+PMCADemo is an important reference for investigating Sony input events.
+
+Potential mappings:
+
+- Directional controls: navigation and selection.
+- Centre button: confirm.
+- Function button: quick settings.
+- AEL button: configurable shortcut.
+- Half press shutter: focus or metering action where supported.
+- Full press shutter: capture request.
+- Playback button: image review.
+- Control dials: adjustable shooting values where supported.
+
+The exact event mappings and conflicts with native camera behaviour must be established through hardware testing.
+
+Touch and physical controls should coexist where the platform permits.
+
+## 8. Preview and capture
+
+Live preview is a critical technical dependency.
+
+PMCADemo demonstrates a camera preview approach using Sony camera APIs and Android surface handling.
+
+Other OpenMemories research has explored camera sequence and JPEG frame access.
+
+These approaches require investigation because camera preview behaviour can differ between camera models and firmware versions.
+
+The implementation should evaluate:
+
+- Preview initialisation.
+- Surface lifecycle.
+- Frame delivery.
+- Memory consumption.
+- Frame latency.
+- Preview orientation.
+- Capture interruption.
+- Resource release.
+
+Preview and capture must be tested independently before being combined into the main interface.
+
+## 9. Colour science and shooting profiles
+
+ALPHA OS should initially preserve Sony's existing image processing pipeline.
+
+The first implementation should focus on workflow improvements rather than attempting to replace proprietary image processing.
+
+Potential areas of investigation:
+
+- Supported picture profile controls.
+- White balance configuration.
+- Exposure compensation.
+- Focus assistance.
+- Scene classification.
+- User configurable shooting profiles.
+
+Any setting must be confirmed as accessible through a supported camera API before implementation.
+
+Custom RAW processing, sensor pipeline modification and JPEG colour rendering changes are outside the verified scope of the current prototype.
+
+## 10. Image recognition
+
+Image recognition is a longer term research area.
+
+The α6000 has limited processing and memory resources compared with modern smartphones.
+
+The architecture should therefore favour lightweight processing and avoid assuming that contemporary machine learning frameworks can run on the camera.
+
+Potential applications:
+
+- Scene classification.
+- Subject detection.
+- Basic photographic composition guidance.
+- Focus assistance.
+- Recognition of common photographic subjects.
+
+A staged research approach is recommended:
+
+1. Determine available processing resources.
+2. Identify accessible image frame data.
+3. Evaluate lightweight algorithms.
+4. Measure processing latency.
+5. Establish whether recognition can operate without disrupting preview or capture.
+6. Test the effect on memory use and battery consumption.
+
+Recognition should initially be optional and should never block normal camera operation.
+
+## 11. Performance and reliability
+
+Performance is a core requirement.
+
+The application should:
+
+- Minimise unnecessary allocations.
+- Avoid heavyweight dependencies.
+- Limit background processing.
+- Avoid blocking the UI thread.
+- Release camera resources correctly.
+- Recover from camera API errors.
+- Avoid unnecessary image copies.
+- Keep preview processing separate from interface rendering.
+
+Performance targets should be established after a working camera build exists and can be measured on hardware.
+
+## 12. Build and compatibility
+
+The current project uses a legacy Android Gradle configuration.
+
+The build environment has not yet been verified.
+
+Before camera integration, establish:
+
+- Compatible Java version.
+- Compatible Gradle version.
+- Android Gradle Plugin version.
+- Android SDK platform.
+- Build tools version.
+- A reproducible build process.
+- A debug APK output.
+
+The target Sony environment must be treated separately from the development computer environment.
+
+Compilation on a modern Android SDK does not establish compatibility with the camera.
+
+## 13. Development sequence
+
+The recommended implementation order is:
+
+### Phase A: Foundation
+
+- Verify repository structure.
+- Establish reproducible build.
+- Resolve compilation issues.
+- Validate application navigation.
+
+### Phase B: Device integration
+
+- Investigate Sony API access.
+- Implement device detection.
+- Implement capability reporting.
+- Investigate physical input events.
+
+### Phase C: Shooting interface
+
+- Investigate preview.
+- Implement capture.
+- Connect supported shooting controls.
+- Improve shooting workspace responsiveness.
+
+### Phase D: Photography tools
+
+- Implement configurable profiles.
+- Add image review.
+- Improve exposure and focus guidance.
+- Investigate image recognition.
+
+### Phase E: Validation
+
+- Install on the α6000.
+- Validate camera lifecycle.
+- Test physical controls.
+- Measure performance.
+- Record compatibility limitations.
+
+## 14. Upstream acknowledgements
+
+The following projects inform the technical direction of ALPHA OS.
+
+- OpenMemories Framework  
+  https://github.com/ma1co/OpenMemories-Framework
+
+- OpenMemories Platform  
+  https://github.com/ma1co/OpenMemories-Platform
+
+- PMCADemo  
+  https://github.com/ma1co/PMCADemo
+
+- Sony PMCA RE  
+  https://github.com/ma1co/Sony-PMCA-RE
+
+- PMCA RE Reloaded  
+  https://masterflai.github.io/pmca-re-reloaded/
+
+- Sony α6000 firmware research  
+  https://github.com/CliffVale/sony-a6000-firmware-research
+
+- Recipe Lab  
+  https://github.com/voxivoid/recipe-lab-sony-pmca
+
+These projects are independent upstream work. Their code, documentation and research remain the property of their respective authors and contributors.
+
+Any reused code must retain its applicable licence and attribution.
+
+ALPHA OS is an independent project and is not affiliated with Sony.
+
+## 15. Current implementation status
+
+| Component | Status |
+|---|---|
+| Initial Android project | Committed |
+| Main interface | Committed |
+| Navigation | Committed |
+| Camera abstraction | Committed |
+| Sony camera adapter | Not implemented |
+| Camera detection | Not implemented |
+| Live preview | Not implemented |
+| Capture | Not implemented |
+| Physical controls | Not implemented |
+| Shooting profiles | Placeholder only |
+| Library integration | Placeholder only |
+| Image recognition | Research only |
+| Successful build | Not verified |
+| Hardware validation | Not performed |
+
+This architecture is a development plan. Implementation and validation status must be updated as the project progresses.
